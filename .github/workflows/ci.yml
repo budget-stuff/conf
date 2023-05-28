@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_call:
+    secrets: 
+      SSH_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_HOST:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+      
+      - name: Создаем .env файл
+        run: |
+          echo \ >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo CREATE_USER_SECRET=${{ secrets.CREATE_USER_SECRET }} >> .env
+
+      - name: Копируем файлы
+        if: ${{github.repository == 'budget-stuff/conf'}}
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/docker"
+
+      - name: Стягиваем докер образы
+        run: ssh staging 'cd ~/docker && docker-compose pull'
+
+      - name: Билдим контейнер
+        run: ssh staging 'cd ~/docker && docker-compose up -d --build'
+
+      - name: Ребутим сервисы (помогает не получать баги при пересборке)
+        run: ssh staging 'cd ~/docker && docker-compose restart'
+
+      - name: Запускаем таймер на обновление сертификата ssl
+        uses: D3rHase/ssh-command-action@v0.2.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          user: ${{secrets.SSH_USER}}
+          private_key: ${{secrets.SSH_PRIVATE_KEY}}
+          command: |
+            SLEEPTIME=$(awk 'BEGIN{srand(); print int(rand()*(3600+1))}'); echo "0 0,12 * * * root sleep $SLEEPTIME && cd ~/docker && docker-compose run --rm certbot renew" | sudo tee -a /etc/crontab > /dev/null;
