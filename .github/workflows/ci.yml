@@ -40,8 +40,8 @@ jobs:
       - name: Создаем .env файл
         run: |
           echo \ >> .env
-          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-          echo CREATE_USER_SECRET=${{ secrets.CREATE_USER_SECRET }} >> .env
+          echo GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} >> .env
+          echo GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }} >> .env
 
       - name: Копируем файлы
         if: ${{github.repository == 'budget-stuff/conf'}}
