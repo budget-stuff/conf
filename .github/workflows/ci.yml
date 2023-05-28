@@ -43,6 +43,7 @@ jobs:
           echo GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} >> .env
           echo GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }} >> .env
           echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo APP_ADDRESS=${{ secrets.APP_ADDRESS }} >> .env
 
       - name: Копируем файлы
         if: ${{github.repository == 'budget-stuff/conf'}}
