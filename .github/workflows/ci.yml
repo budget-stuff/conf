@@ -66,6 +66,7 @@ jobs:
 
     #   - name: Ребутим сервисы (помогает не получать баги при пересборке)
     #     run: ssh staging 'cd ~/docker && docker-compose restart'
+	# hello
 
       - name: Запускаем таймер на обновление сертификата ssl
         uses: D3rHase/ssh-command-action@v0.2.2
