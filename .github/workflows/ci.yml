@@ -63,12 +63,3 @@ jobs:
 
       - name: Билдим контейнер
         run: ssh staging 'cd ~/docker && docker-compose up -d --build'
-
-      - name: Запускаем таймер на обновление сертификата ssl
-        uses: D3rHase/ssh-command-action@v0.2.2
-        with:
-          host: ${{secrets.SSH_HOST}}
-          user: ${{secrets.SSH_USER}}
-          private_key: ${{secrets.SSH_PRIVATE_KEY}}
-          command: |
-            SLEEPTIME=$(awk 'BEGIN{srand(); print int(rand()*(3600+1))}'); echo "0 0,12 * * * root sleep $SLEEPTIME && cd ~/docker && docker-compose run --rm certbot renew" | sudo tee -a /etc/crontab > /dev/null;
