@@ -1,5 +1,15 @@
 name: renew-cert
 
+on: 
+  workflow_call:
+    secrets: 
+      SSH_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_HOST:
+        required: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

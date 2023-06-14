@@ -64,8 +64,8 @@ jobs:
       - name: Билдим контейнер
         run: ssh staging 'cd ~/docker && docker-compose up -d --build'
 
-      - name: Ребутим сервисы (помогает не получать баги при пересборке)
-        run: ssh staging 'cd ~/docker && docker-compose restart'
+    #   - name: Ребутим сервисы (помогает не получать баги при пересборке)
+    #     run: ssh staging 'cd ~/docker && docker-compose restart'
 
       - name: Запускаем таймер на обновление сертификата ssl
         uses: D3rHase/ssh-command-action@v0.2.2
