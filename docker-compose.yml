@@ -21,7 +21,7 @@ services:
       - '8080:8080'
     restart: always
   mongodb:
-    image: mongo:latest
+    image: mongo:6.0.6-jammy
     container_name: mongodb  
     ports:
       - 27017:27017
